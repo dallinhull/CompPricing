@@ -5,6 +5,8 @@
 
 # Practice branching for git
 
+# Practice merging branch to modified master branch
+
 # first-try-google-sheets-demo@visionary-homes-382222.iam.gserviceaccount.com
 
 # workbook = Workbook(encoding = 'utf-8')
