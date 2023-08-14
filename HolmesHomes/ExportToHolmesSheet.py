@@ -1,3 +1,13 @@
+"""
+By Dallin Hull
+dallinrichard@gmail.com
+https://github.com/dallinhull
+
+This file runs ModifiedHolmesHomesCrawler.py and transfers/organizes main list of lists data in a Google Sheet.
+
+"""
+
+# Imports
 import time
 import gspread
 from gspread import *
@@ -29,10 +39,9 @@ data = ModifiedHolmesHomesCrawler.holmes_spec_list
 # Over-specify the worksheet range that will be modified
 cell_list = worksheet.range('A1:AA1000')
 
-# Freeze top two rows
+# Freeze top two rows and bold top 2 rows
 worksheet.freeze(rows=2)
 
-# Freeze top two rows and bold top 2 rows
 reqs = {'requests': [
             {'updateSheetProperties': {
                 'properties': {'gridProperties': {'frozenRowCount': 2}},
@@ -47,7 +56,7 @@ reqs = {'requests': [
 SHEETS.spreadsheets().batchUpdate(
     spreadsheetId=SPREADSHEET_ID, body=reqs).execute()
 
-# Enumerate spec list for tuple, and enumerate spec specific info for another tuple
+# Enumerate spec list for tuple, and enumerate individual spec info for another tuple
 # Use first numerical value for column/row designation, use spec info for cell value
 def post_values(worksheet, data):
     for row_index, row in enumerate(data):
@@ -60,6 +69,6 @@ def post_values(worksheet, data):
             worksheet.update_cell(row_index + 3, col_index + 1, cell.value)
         
 
-# Run it
+# Run
 post_values(worksheet, data)
 print("Finished")

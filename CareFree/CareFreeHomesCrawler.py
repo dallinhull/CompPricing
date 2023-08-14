@@ -26,16 +26,16 @@ headers = {
 # Initialize final list of lists
 carefree_full_list = []
     
-# HTTP request and process competitor's site
+# Retrieve and parse HTML
 def get_content(url, headers):
     
     response = requests.get(url, headers = headers)
     html_content = response.text
     soup = BeautifulSoup(html_content, 'html.parser')
-
+    
     return soup
 
-# Identify url for each community project webpage
+# Create a list of all community URLs
 def get_community_list(soup):
     all_links = soup.find_all("a")
     all_links = list(set(all_links))

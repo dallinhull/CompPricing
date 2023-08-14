@@ -3,7 +3,7 @@ By Dallin Hull
 dallinrichard@gmail.com
 https://github.com/dallinhull
 
-This file runs CareFreeHomesCrawler.py and organizes main list of lists data in a Google Sheet.
+This file runs CareFreeHomesCrawler.py and transfers/organizes main list of lists data in a Google Sheet.
 
 """
 

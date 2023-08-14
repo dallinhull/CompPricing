@@ -1,13 +1,30 @@
+"""
+By Dallin Hull
+dallinrichard@gmail.com
+https://github.com/dallinhull
+
+This API webcrawls carefreehomes.com and returns various information about presale homes and listed spec homes.
+Information is gathered and processed via HTTP requests and BeautifulSoup.
+Information includes location, price, sqft, bedroom count, bathroom count, etc.
+
+Lastly, all selected info will be compiled into a list of lists.
+The end goal is to make info easy to transfer via GoogleCloud to Google Sheets file [SEE ExportToCareFreeSheets.py]
+
+"""
+
+# Imports
 import requests
 from bs4 import BeautifulSoup
 
-# Url for spec homes list
+# Target competitor site
 url = "https://holmeshomes.com/search/?locations=st-george"
 
-# Header to mask bot
 headers = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE'
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0'
   }
+
+# Initialize final list of lists
+holmes_spec_list = []
 
 # Retrieve and parse HTML
 def get_content(url, headers):
@@ -15,7 +32,7 @@ def get_content(url, headers):
     response = requests.get(url, headers = headers)
     html_content = response.text
     soup = BeautifulSoup(html_content, 'html.parser')
-    
+
     return soup
 
 # Create a list of all spec home URLs
@@ -37,6 +54,7 @@ def get_homes_list(soup):
              
     return spec_list
 
+# Cerate a list of home info for each spec home, compile lists
 def get_homes_info(spec_list, headers):
     full_spec_list = spec_list
     num = 1
@@ -65,8 +83,7 @@ def get_homes_info(spec_list, headers):
         
         # Home Level
         level_class_list = soup.find_all(class_="uk-margin-medium")
-        community_class_list = soup.find(class_= "uk-h1-
-                                         ")
+        community_class_list = soup.find(class_="uk-h1-")
         for item in level_class_list:
             item_text = item.text
             if "Description" in item_text:
@@ -140,7 +157,7 @@ def get_homes_info(spec_list, headers):
                 home_sqft = home_sqft.replace(" ", "")
                         
                   
-        
+        # Only append info for Single Family homes 
         if home_type != "Single Family":
             continue
         else:
@@ -149,7 +166,8 @@ def get_homes_info(spec_list, headers):
             else:
                 master_spec_list.append([home_type, home_city, home_community, home_sqft, home_bedroom, home_bathroom, home_garage, home_level, home_price, home_url])
             num += 1 
-        
+    
+    # Count and add labels for presell list and spec list    
     master_full_list.append(["Buildable Plans", len(master_presell_list)])
     for item in master_presell_list:
         master_full_list.append(item)
@@ -163,5 +181,5 @@ def get_homes_info(spec_list, headers):
     return master_full_list
 
 
-
+# Run
 holmes_spec_list = get_homes_info(get_homes_list(get_content(url, headers)), headers)
