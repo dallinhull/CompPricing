@@ -1,3 +1,13 @@
+"""
+By Dallin Hull
+dallinrichard@gmail.com
+https://github.com/dallinhull
+
+This file runs SSHomesCrawler.py and transfers/organizes main list of lists data in a Google Sheet.
+
+"""
+
+# Imports
 import time
 import gspread
 from gspread import *
@@ -23,16 +33,16 @@ SHEETS = discovery.build('sheets', 'v4', http=creds.authorize(Http()))
 # Open the worksheet
 worksheet = client.open_by_key(SPREADSHEET_ID).worksheet(WORKSHEET_NAME)
 
-# instantiate variable and assign builder spec list
+# Instantiate variable and assign builder spec list
 data = SSHomesCrawler.ss_spec_list
 
 # Over-specify the worksheet range that will be modified
 cell_list = worksheet.range('A1:AA1000')
 
-# Freeze top two rows
+# Freeze top two rows and bold top 2 rows
 worksheet.freeze(rows=2)
 
-# Freeze top two rows and bold top 2 rows
+
 reqs = {'requests': [
             {'updateSheetProperties': {
                 'properties': {'gridProperties': {'frozenRowCount': 2}},
@@ -60,6 +70,6 @@ def post_values(worksheet, data):
             worksheet.update_cell(row_index + 3, col_index + 1, cell.value)
         
 
-# Run it
+# Run
 post_values(worksheet, data)
 print("Finished")

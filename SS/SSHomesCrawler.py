@@ -1,10 +1,22 @@
+"""
+By Dallin Hull
+dallinrichard@gmail.com
+https://github.com/dallinhull
+
+This API webcrawls sshomes.info and returns various information about presale homes and listed spec homes.
+Information is gathered and processed via HTTP requests and BeautifulSoup.
+Information includes location, price, sqft, bedroom count, bathroom count, etc.
+
+Lastly, all selected info will be compiled into a list of lists.
+The end goal is to make info easy to transfer via GoogleCloud to Google Sheets file [SEE ExportToCareFreeSheets.py]
+
+"""
 import requests
 from bs4 import BeautifulSoup
 
 # Url for spec homes list
 url = "https://sshomes.info/homes/"
 
-# Header to mask bot
 headers = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE'
   }
@@ -18,7 +30,7 @@ def get_content(url, headers):
     
     return soup
 
-# Create a list of all spec nhome URLs
+# Create a list of all spec home URLs
 def get_spec_list(soup):
     
     all_links = soup.find_all("a")
@@ -182,20 +194,9 @@ def get_spec_info(spec_list, headers):
       
     return master_list                
 
-
+# Run
 ss_spec_list = get_spec_info(get_spec_list(get_content(url, headers)), headers)        
 
-
-# Run it
-# def main():
-#     get_spec_info(
-#         get_spec_list(
-#             get_content(url, headers)
-#             ), headers)
-    
-    
-# # Assign master_list to universal variable
-# ss_spec_list = main()
 for item in ss_spec_list:
     print(item)    
 
