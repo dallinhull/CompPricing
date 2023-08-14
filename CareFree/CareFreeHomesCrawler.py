@@ -1,28 +1,32 @@
+"""
+By Dallin Hull
+dallinrichard@gmail.com
+https://github.com/dallinhull
+
+This API webcrawls carefreehomes.com and returns various information about presale homes and listed spec homes.
+Information is gathered and processed via HTTP requests and BeautifulSoup.
+Information includes location, price, sqft, bedroom count, bathroom count, etc.
+
+Lastly, all selected info will be compiled into a list of lists.
+The end goal is to make info easy to transfer via GoogleCloud to Google Sheets file [SEE ExportToCareFreeSheets.py]
+
+"""
+
+# Imports
 import requests
 from bs4 import BeautifulSoup
-# from xlwt import *
 
-# workbook = Workbook(encoding = 'utf-8')
-# table = workbook.add_sheet('data')
-# table.write(0, 0, "Number")
-# table.write(0, 1, "Price")
-# table.write(0, 2,"Type")
-# table.write(0, 3,"Bedrooms")
-# table.write(0, 4,"Bathrooms")
-# table.write(0, 5,"SQFT")
-# table.write(0, 6, Garages)
-# table.write(0, 6,"Address")
-# table.write(0, 7,"URL")
-
+# Target competitor site
 url = "https://www.carefreehomes.com/state/utah-new-homes/"
 
 headers = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE'
   }
 
+# Initialize final list of lists
 carefree_full_list = []
     
-
+# HTTP request and process competitor's site
 def get_content(url, headers):
     
     response = requests.get(url, headers = headers)
@@ -31,6 +35,7 @@ def get_content(url, headers):
 
     return soup
 
+# Identify url for each community project webpage
 def get_community_list(soup):
     all_links = soup.find_all("a")
     all_links = list(set(all_links))
@@ -46,6 +51,7 @@ def get_community_list(soup):
     community_string = "https://www.carefreehomes.com/communities/"
     community_list = []
     
+    # Only keep hrefs of communities in href_list. Discard all other href values.
     for item in href_list:
         try:
             if community_string in item:
@@ -62,12 +68,14 @@ def get_community_list(soup):
                 
         except TypeError:
             continue
-            #print("Stupid TypeError")
-    
+            
+    # Convert list to set (to remove duplicates) and convert back to list
     community_list = list(set(community_list))
-        
+      
     return community_list
 
+
+# For each item in community_list, find and compiled a list of all listed presell home pages
 def get_presell_list(communities, headers):
     community_list = communities
     presell_list = []
@@ -97,13 +105,14 @@ def get_presell_list(communities, headers):
                     
             except TypeError:
                 continue
-                #print("Stupid TypeError")
-    
+                
+    # Convert list to set (to remove duplicates) and convert back to list
     presell_list = list(set(presell_list)) 
         
     return presell_list
         
- 
+
+# Identify relevant info about presell home, edit syntax, and compile in a list
 def get_presell_info(presell_list, headers):
     full_presell_list = presell_list
     master_presell_list = []
@@ -117,6 +126,7 @@ def get_presell_info(presell_list, headers):
         home_elements = soup.find_all(class_="row")
         home_elements_two = soup.find_all(class_="col-sm-3 model-detail")
 
+        # Initialize a variable for each info category
         home_address = "Not Available"
         home_type = "None"        
         home_price = "none"
@@ -128,6 +138,7 @@ def get_presell_info(presell_list, headers):
         home_RV = "none"
         home_city = "none"
         
+        # Let the editing begin...
         if "sage" in presell:
             home_community = "Sage Haven at Desert Color"
             home_city = "St George"
@@ -205,6 +216,8 @@ def get_presell_info(presell_list, headers):
         master_presell_list.append([home_city, home_community, home_sqft, home_bedrooms, home_bathrooms, home_garages, home_RV, home_level, home_price, home_address, home_full_url])                
     return master_presell_list
 
+
+# For each item in community_list, find and compiled a list of all available spec home pages
 def get_spec_list(soup):
     
     all_links = soup.find_all("a")
@@ -228,16 +241,13 @@ def get_spec_list(soup):
                 
         except TypeError:
             continue
-            #print("Stupid TypeError")
     
     spec_list = list(set(spec_list))     
         
     return spec_list
 
 
-
-        
-# def get_spec_info(spec_list, headers, table):
+# Identify relevant info about spec home, edit syntax, and compile in a list
 def get_spec_info(spec_list, headers):
     full_spec_list = spec_list
     
@@ -326,29 +336,20 @@ def get_spec_info(spec_list, headers):
                  
         
         master_list.append([home_city, home_community, home_sqft, home_bedrooms, home_bathrooms, home_garages, home_RV, home_level, home_price, home_address, home_full_url])
-        # table.write(line, 0, num)
-        # table.write(line, 1, home_price)
-        # table.write(line, 2, home_type)
-        # table.write(line, 3, home_bedrooms)
-        # table.write(line, 4, home_bathrooms)
-        # table.write(line, 5, home_sqft)
-        # table.write(line, 6, home_garages)
-        # table.write(line, 7, home_address)
-        # table.write(line, 8, home_full_url)
         num+=1
         line+=1
-#    workbook.save('visionaryhomes.xls')
     
     return master_list
 
-# def main():
-#     master_list = get_spec_info(
-#         get_spec_list(
-#             get_content(url, headers)
-#             ), headers, table)
 
 def main_presell():
-    master_presell_list = get_presell_info(get_presell_list(get_community_list(get_content(url, headers)), headers), headers)
+    master_presell_list = get_presell_info(
+            get_presell_list(
+                get_community_list(
+                    get_content(url, headers)
+                    ),
+                headers),
+            headers)
     return master_presell_list
     
 def main_spec():
@@ -356,23 +357,20 @@ def main_spec():
         get_spec_list(
             get_content(url, headers)
             ), headers)
-    
     return master_spec_list
 
+# Initialize variables for each "main_" function above.
 carefree_presell_list = main_presell()
 carefree_spec_list = main_spec()
 
+# Count and add labels for presell list and spec list
 carefree_full_list.append(["Buildable Plans", len(carefree_presell_list)])
 for item in carefree_presell_list:
     carefree_full_list.append(item)
 carefree_full_list.append(["Specs", len(carefree_spec_list)])
 for item in carefree_spec_list:
     carefree_full_list.append(item)
-    
+
+# Print to verify    
 for home in carefree_full_list:
     print(home)
-
-# master_smaster = main()    
-# for item in master_smaster:
-#     print(item)
-#     print()

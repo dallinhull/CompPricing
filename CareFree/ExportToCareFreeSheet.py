@@ -1,3 +1,13 @@
+"""
+By Dallin Hull
+dallinrichard@gmail.com
+https://github.com/dallinhull
+
+This file runs CareFreeHomesCrawler.py and organizes main list of lists data in a Google Sheet.
+
+"""
+
+# Imports
 import time
 import gspread
 from gspread import *
@@ -20,7 +30,7 @@ client = gspread.authorize(creds)
 # Formatting
 SHEETS = discovery.build('sheets', 'v4', http=creds.authorize(Http()))
 
-# Open the worksheet
+# Open the worksheet and identify range
 worksheet = client.open_by_key(SPREADSHEET_ID).worksheet(WORKSHEET_NAME)
 
 data = CareFreeHomesCrawler.carefree_full_list
@@ -40,10 +50,10 @@ reqs = {'requests': [
                 'fields': 'userEnteredFormat.textFormat.bold',}}
 ]}
 
-
 SHEETS.spreadsheets().batchUpdate(
     spreadsheetId=SPREADSHEET_ID, body=reqs).execute()
 
+# Enter list values into cells at rate of 1 cell per second (Google charges money for faster rates).
 def post_values(worksheet, data):
     for row_index, row in enumerate(data):
         for col_index, value in enumerate(row):
@@ -55,6 +65,6 @@ def post_values(worksheet, data):
             worksheet.update_cell(row_index + 3, col_index + 1, cell.value)
         
 
-# worksheet.update_cells(cell_list)
+# Run
 post_values(worksheet, data)
 print("Finished")
