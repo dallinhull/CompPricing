@@ -3,7 +3,7 @@ By Dallin Hull
 dallinrichard@gmail.com
 https://github.com/dallinhull
 
-This API webcrawls carefreehomes.com and returns various information about presale homes and listed spec homes.
+This API webcrawls holmeshomes.com and returns various information about presale homes and listed spec homes.
 Information is gathered and processed via HTTP requests and BeautifulSoup.
 Information includes location, price, sqft, bedroom count, bathroom count, etc.
 
